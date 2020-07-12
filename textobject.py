@@ -6,15 +6,6 @@ Colour = Tuple[int, int, int]
 RichText = List[Tuple[Position, Colour, Colour]]
 
 
-class TextAnimation:
-
-    ANIMATION_STYLE = {"NORMAL": 1, "REVERSE": -1}
-
-    def __init__(self):
-        self.duration = 0
-        self.style = None
-
-
 class TextObject:
     def __init__(
         self,
@@ -25,30 +16,48 @@ class TextObject:
     ):
         self.position = list(pos)
         self.default_text = self.__load_text(text, colour, background)
-        self.animations = {}
         self.hidden = False
-        self.position_gridded = True
-        self.event_handlers = []
-        self.current_frame = self.default_text
+        self.position_gridded = False
 
     def update(self, dt: int) -> NoReturn:
-        # This method should be overrided by child object
+        """Update TextObject. This method is expected to be overrided.
+
+        Arguments:
+        dt -- Difference in ms between current and last frame.
+        """
         pass
 
     def handle_events(self, events: "pygame.event.EventList") -> NoReturn:
-        # This method should be overrided by child object
+        """Handle incoming pygame events. This method is expected to
+        be overrided.
+
+        Arguments:
+        events -- A PyGame EventList with all events from queue of this frame.
+        """
         pass
 
     @final
     def __load_text(
         self, text: Generic, colour: Colour, background: Colour,
     ) -> RichText:
-        formatted_text = []
+        """Loads inputted text into expected format for a text object.
+        Expected format:
+        [[[Position, Foreground Colour, Background Colour], [...], [...]]]
+        List 1st dimension represents the entire string,
+             2nd dimension represents a line of text,
+             3rd dimension represents character attributes
+
+        Arguments:
+        text -- Some text format, e.g. string or list of chars to be converted.
+        colour -- (R, G, B) colour format for font.
+        background -- (R, G, B) colour format for background.
+        """
+        formatted_text = text
+        # If string we need to break into list of lines
         if type(text) is str:
             formatted_text = text.split("\n")
-        elif type(text) is list:
-            formatted_text = text
 
+        # Turns list into correctly formated RichText
         rich_text = []
         for i, line in enumerate(formatted_text):
             rich_text.append([])
@@ -59,6 +68,20 @@ class TextObject:
 
     @final
     def render(self, surface: "pygame.Surface", font: "pygame.font.Font",) -> NoReturn:
+        """Render TextObject onto a pygame Surface. Due to the enforced
+        limitations of this library every object uses the same font and font
+        size. However, choice of colour is allowed. This is why a decision
+        was made to pass font in as an argument rather than having each
+        text object have its own font variable.
+
+        TODO:
+        * Have the TextObject pre render itself once and simply blit to correct
+        position at render time.
+
+        Arguments:
+        surface -- A pygame surface object.
+        font -- A pygame font object.
+        """
         x, y = self.position
 
         # Snap to grid
@@ -69,7 +92,7 @@ class TextObject:
         # Must be stored for line restore point
         initial_x = x
 
-        for line in self.current_frame:
+        for line in self.default_text:
             for char, colour, background in line:
                 if char is not None:
                     surface.blit(
@@ -83,14 +106,30 @@ class TextObject:
 
     @final
     def set_colour(self, colour: Colour) -> NoReturn:
+        """NOT IMPLEMENTED. Set the colour of entire TextObject
+
+        Arguments:
+        colour -- (R, G, B) colour format for font.
+        """
         pass
 
     @final
     def set_background(self, colour: Colour) -> NoReturn:
+        """NOT IMPLEMENTED. Set the background colour of entire TextObject.
+
+        Arguments:
+        colour -- (R, G, B) colour format for font.
+        """
         pass
 
     @final
     def set_colour_at(self, pos: Position, colour: Colour) -> NoReturn:
+        """Set the font colour of a character in the TextObject.
+
+        Arguments:
+        pos -- Relative coordinate of character to change colour of.
+        colour -- (R, G, B) colour format for font.
+        """
         if (
             type(colour) is tuple
             and len(colour) == 3
@@ -103,6 +142,12 @@ class TextObject:
 
     @final
     def set_background_at(self, pos: Position, colour: Colour) -> NoReturn:
+        """Set the background colour of a character in the TextObject.
+
+        Arguments:
+        pos -- Relative coordinate of character to change colour of.
+        colour -- (R, G, B) colour format for font.
+        """
         if (
             type(colour) is tuple
             and len(colour) == 3
@@ -113,8 +158,15 @@ class TextObject:
         else:
             raise ValueError("Incorrect colour or position format!")
 
-    @staticmethod
     @final
-    def load_from_file(self, file: str, pos: Position) -> "TextObject":
+    def load_from_file(
+        self, file: str, colour: Colour, background: Colour
+    ) -> "TextObject":
+        """Loads a TextObject from a file. Basic way of storing complex sprites.
+
+        Arguments:
+        file -- Location of file to load from.
+        pos -- Coordinate to initially place TextObject.
+        """
         with open(file) as f:
-            return TextObject(f.read(), pos)
+            self.default_text = self.__load_text(f.read(), colour, background)
