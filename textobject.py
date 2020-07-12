@@ -1,4 +1,5 @@
 from typing import Tuple, Generic, List, NoReturn, final
+from pygame import *
 
 
 Position = Tuple[int, int]
@@ -17,11 +18,12 @@ class TextObject:
         self.position = list(pos)
         self.default_text = self.__load_text(text, colour, background)
         self.hidden = False
-        self.position_gridded = False
+        self.position_gridded = True
+        self.dimensions = [0, 0]
 
     def update(self, dt: int) -> NoReturn:
         """Update TextObject. This method is expected to be overrided.
-
+ 
         Arguments:
         dt -- Difference in ms between current and last frame.
         """
@@ -92,17 +94,19 @@ class TextObject:
         # Must be stored for line restore point
         initial_x = x
 
+        max_width = 0
         for line in self.default_text:
             for char, colour, background in line:
+                max_width = max(max_width, len(line))
                 if char is not None:
-                    surface.blit(
-                        font.render(char, False, colour, background), (x, y),
-                    )
+                    surface.blit(font.render(char, False, colour, background), (x, y))
                 x += font.size(" ")[0]
             # Reset x to start of object and move
             # y to next line
             x = initial_x
             y += font.size(" ")[1]
+        self.dimensions[0] = max_width * font.size("_")[0]
+        self.dimensions[1] = len(self.default_text) * font.size(" ")[1]
 
     @final
     def set_colour(self, colour: Colour) -> NoReturn:
@@ -170,3 +174,24 @@ class TextObject:
         """
         with open(file) as f:
             self.default_text = self.__load_text(f.read(), colour, background)
+
+    def point_collision(self, point_pos: Position) -> bool:
+        if (
+            self.position[0] <= point_pos[0]
+            and self.position[1] <= point_pos[1]
+            and self.position[0] + self.dimensions[0] >= point_pos[0]
+            and self.position[1] + self.dimensions[1] >= point_pos[1]
+        ):
+            return True
+        return False
+
+    def other_collision(self, other: "TextObject") -> bool:
+        if (
+            self.position[0] <= other.position[0] + other.dimensions[0]
+            and self.position[0] + self.dimensions[0] >= other.position[0]
+            and self.position[1] <= other.position[1] + other.dimensions[1]
+            and self.position[1] + self.dimensions[1] >= other.position[1]
+        ):
+            print("Collide!")
+            return True
+        return False

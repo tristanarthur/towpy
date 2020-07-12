@@ -32,7 +32,7 @@ class TextOnlyWindow:
 
         self.clock = pygame.time.Clock()
         self.run_time = 0
-        self.target_FPS = 15
+        self.target_FPS = 30
         self.dt = 0
 
         self.background_colour = (0, 0, 0)
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     tow = TextOnlyWindow()
     tow.set_background_colour((100, 100, 100))
 
-    a = TextObject([[" __ "], ["|__|"]], (50, 50))
+    a = TextObject([" __ ", "|__|"], (50, 50))
     tow.add_object(a)
 
     b = TextObject("Hello\nMy\nName\nTree", (200, 200))
