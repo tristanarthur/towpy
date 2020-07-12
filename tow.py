@@ -1,6 +1,6 @@
 import pygame
 from sys import exit
-from textobject import TextObject
+from towpy.textobject import TextObject
 from typing import Tuple, NoReturn
 
 

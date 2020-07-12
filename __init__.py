@@ -1,2 +1,2 @@
-from tow import TextOnlyWindow
-from textobject import TextObject
+from towpy.tow import TextOnlyWindow
+from towpy.textobject import TextObject
