@@ -14,19 +14,16 @@ quirky text programs in, I have always taken after the way of thinking that
 minimilism enhances creativity.
 
 ## Setup
-The only dependency to use *TOW.PY* is pygame, which can simply be installed with
-`pip install pygame`
+TOW.PY can easily be installed with pip.
+`pip install towpy`
 
 ## Code Example
-Currently TOW.PY has not been formatted to work as a python library. However,
-using the files locally in your project would work as follows:
 ```
-import TextOnlyWindow from tow
-import TextObject from textobject
+import towpy
 
-tow = TextOnlyWindow()
+tow = towpy.TextOnlyWindow()
 
-txt_obj = TextObject(["Hello", "World"], (10, 10))
+txt_obj = towpy.TextObject(["Hello", "World"], (10, 10))
 tow.add_object(txt_obj)
 
 tow.run()
