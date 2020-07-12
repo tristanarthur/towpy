@@ -15,14 +15,14 @@ class TextAnimation:
         self.style = None
 
 
-
 class TextObject:
-
-    def __init__(self,
-                text: Generic,
-                pos: Position,
-                colour: Colour=(255, 255, 255),
-                background: Colour=None):
+    def __init__(
+        self,
+        text: Generic,
+        pos: Position,
+        colour: Colour = (255, 255, 255),
+        background: Colour = None,
+    ):
         self.position = list(pos)
         self.default_text = self.__load_text(text, colour, background)
         self.animations = {}
@@ -40,10 +40,9 @@ class TextObject:
         pass
 
     @final
-    def __load_text(self,
-                    text: Generic,
-                    colour: Colour,
-                    background: Colour) -> RichText:
+    def __load_text(
+        self, text: Generic, colour: Colour, background: Colour,
+    ) -> RichText:
         formatted_text = []
         if type(text) is str:
             formatted_text = text.split("\n")
@@ -59,9 +58,7 @@ class TextObject:
         return rich_text
 
     @final
-    def render(self,
-                surface: "pygame.Surface",
-                font: "pygame.font.Font") -> NoReturn:
+    def render(self, surface: "pygame.Surface", font: "pygame.font.Font",) -> NoReturn:
         x, y = self.position
 
         # Snap to grid
@@ -75,7 +72,9 @@ class TextObject:
         for line in self.current_frame:
             for char, colour, background in line:
                 if char is not None:
-                    surface.blit(font.render(char, False, colour, background), (x, y))
+                    surface.blit(
+                        font.render(char, False, colour, background), (x, y),
+                    )
                 x += font.size(" ")[0]
             # Reset x to start of object and move
             # y to next line
@@ -92,20 +91,24 @@ class TextObject:
 
     @final
     def set_colour_at(self, pos: Position, colour: Colour) -> NoReturn:
-        if (type(colour) is tuple and
-            len(colour) == 3 and
-            type(pos) is tuple and
-            len(pos) == 2):
+        if (
+            type(colour) is tuple
+            and len(colour) == 3
+            and type(pos) is tuple
+            and len(pos) == 2
+        ):
             self.default_text[pos[0]][pos[1]][1] = colour
         else:
             raise ValueError("Incorrect colour or position format!")
 
     @final
     def set_background_at(self, pos: Position, colour: Colour) -> NoReturn:
-        if (type(colour) is tuple and
-            len(colour) == 3 and
-            type(pos) is tuple and
-            len(pos) == 2):
+        if (
+            type(colour) is tuple
+            and len(colour) == 3
+            and type(pos) is tuple
+            and len(pos) == 2
+        ):
             self.default_text[pos[0]][pos[1]][2] = colour
         else:
             raise ValueError("Incorrect colour or position format!")
