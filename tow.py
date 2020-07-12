@@ -11,15 +11,15 @@ from textobject import TextObject
 
 class TextOnlyWindow:
 
-    def __init__(self):
+    def __init__(self, size=(500,500), caption="TOW.PY"):
         if not pygame.get_init():
             pygame.init()
         if not pygame.font.get_init():
             pygame.font.init()
         self.running = True
 
-        self.surface = pygame.display.set_mode((500, 500))
-        pygame.display.set_caption("TOW.PY")
+        self.surface = pygame.display.set_mode(size)
+        pygame.display.set_caption(caption)
 
         self.clock = pygame.time.Clock()
         self.run_time = 0
@@ -49,7 +49,7 @@ class TextOnlyWindow:
 
         for text_object in self.text_objects:
             if not text_object.hidden:
-                self.__render_object(text_object)
+                text_object.render(self.surface, self.font)
 
         pygame.display.update()
 
@@ -66,28 +66,6 @@ class TextOnlyWindow:
 
     def add_object(self, text_object):
         self.text_objects.append(text_object)
-
-    def __render_object(self, text_object):
-        x, y = text_object.position
-
-        # Snap to grid
-        if text_object.position_gridded:
-            x = x - (x % self.font.size(" ")[0])
-            y = y - (y % self.font.size(" ")[1])
-
-        # Must be stored for line restore point
-        initial_x = x
-
-        for line in text_object.get_current_frame():
-            for char in line:
-                if char is not None:
-                    self.surface.blit(self.font.render(char, False, (255, 255, 255)), (x, y))
-                x += self.font.size(" ")[0]
-            # Reset x to start of object and move
-            # y to next line
-            x = initial_x
-            y += self.font.size(" ")[1]
-
 
     def set_background_colour(self, colour):
         if type(colour) is tuple and len(colour) == 3:
@@ -108,9 +86,10 @@ if __name__ == "__main__":
     b = TextObject("Hello\nMy\nName\nTree", (200, 200))
     tow.add_object(b)
 
-    c = TextObject([["I", None, "I"],
-                    ["I", "_", "I"]],
-                    (100, 100))
+    c = TextObject([[" ", None, " "],
+                    [" ", " ", " "]],
+                    (100, 100), colour=(255, 120, 120), background=(0, 0, 0))
+    c.set_background_at((1, 1), (120, 255, 120))
     tow.add_object(c)
 
     tow.run()
