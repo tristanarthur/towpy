@@ -1,3 +1,11 @@
+from typing import Tuple, Generic, List, NoReturn, final
+
+
+Position = Tuple[int, int]
+Colour = Tuple[int, int, int]
+RichText = List[Tuple[Position, Colour, Colour]]
+
+
 class TextAnimation:
 
     ANIMATION_STYLE = {"NORMAL": 1, "REVERSE": -1}
@@ -10,7 +18,11 @@ class TextAnimation:
 
 class TextObject:
 
-    def __init__(self, text, pos, colour=(255, 255, 255), background=None):
+    def __init__(self,
+                text: Generic,
+                pos: Position,
+                colour: Colour=(255, 255, 255),
+                background: Colour=None):
         self.position = list(pos)
         self.default_text = self.__load_text(text, colour, background)
         self.animations = {}
@@ -19,15 +31,19 @@ class TextObject:
         self.event_handlers = []
         self.current_frame = self.default_text
 
-    def update(self, dt):
+    def update(self, dt: int) -> NoReturn:
         # This method should be overrided by child object
         pass
 
-    def handle_events(self, events):
+    def handle_events(self, events: "pygame.event.EventList") -> NoReturn:
         # This method should be overrided by child object
         pass
 
-    def __load_text(self, text, colour, background):
+    @final
+    def __load_text(self,
+                    text: Generic,
+                    colour: Colour,
+                    background: Colour) -> RichText:
         formatted_text = []
         if type(text) is str:
             formatted_text = text.split("\n")
@@ -42,7 +58,10 @@ class TextObject:
 
         return rich_text
 
-    def render(self, surface, font):
+    @final
+    def render(self,
+                surface: "pygame.Surface",
+                font: "pygame.font.Font") -> NoReturn:
         x, y = self.position
 
         # Snap to grid
@@ -63,13 +82,16 @@ class TextObject:
             x = initial_x
             y += font.size(" ")[1]
 
-    def set_colour(self, colour):
+    @final
+    def set_colour(self, colour: Colour) -> NoReturn:
         pass
 
-    def set_background(self, colour):
+    @final
+    def set_background(self, colour: Colour) -> NoReturn:
         pass
 
-    def set_colour_at(self, pos, colour):
+    @final
+    def set_colour_at(self, pos: Position, colour: Colour) -> NoReturn:
         if (type(colour) is tuple and
             len(colour) == 3 and
             type(pos) is tuple and
@@ -78,7 +100,8 @@ class TextObject:
         else:
             raise ValueError("Incorrect colour or position format!")
 
-    def set_background_at(self, pos, colour):
+    @final
+    def set_background_at(self, pos: Position, colour: Colour) -> NoReturn:
         if (type(colour) is tuple and
             len(colour) == 3 and
             type(pos) is tuple and
@@ -88,6 +111,7 @@ class TextObject:
             raise ValueError("Incorrect colour or position format!")
 
     @staticmethod
-    def load_from_file(self, file, pos):
+    @final
+    def load_from_file(self, file: str, pos: Position) -> "TextObject":
         with open(file) as f:
             return TextObject(f.read(), pos)
