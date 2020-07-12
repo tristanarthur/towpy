@@ -9,7 +9,7 @@ abstract away to create a useable framework.
 
 ## Philosophy
 Why develop a program that is so restricted when libraries such as *pygame*
-already exist. Aside from being a toy library to play around with and develop
+already exist? Aside from being a toy library to play around with and develop
 quirky text programs in, I have always taken after the way of thinking that
 minimilism enhances creativity.
 
