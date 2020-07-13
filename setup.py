@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="towpy",
-    version="0.1.2",
+    version="0.1.3",
     url="https://github.com/treestein/TOW.PY",
     author="Tristan Arthur",
     author_email="tristanarthur2000@gmail.com",

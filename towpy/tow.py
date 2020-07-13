@@ -1,7 +1,7 @@
 import pygame
 from sys import exit
-from towpy.textobject import TextObject
 from typing import Tuple, NoReturn
+from .textobject import TextObject
 
 
 Size = Tuple[int, int]
