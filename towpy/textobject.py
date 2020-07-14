@@ -20,10 +20,11 @@ class TextObject:
         self.hidden = False
         self.position_gridded = True
         self.dimensions = [0, 0]
+        self.components = []
 
     def update(self, dt: int) -> NoReturn:
         """Update TextObject. This method is expected to be overrided.
- 
+
         Arguments:
         dt -- Difference in ms between current and last frame.
         """
@@ -37,6 +38,10 @@ class TextObject:
         events -- A PyGame EventList with all events from queue of this frame.
         """
         pass
+
+    def handle_components(self, dt):
+        for component in self.components:
+            component.update(dt)
 
     @final
     def __load_text(
@@ -175,23 +180,7 @@ class TextObject:
         with open(file) as f:
             self.default_text = self.__load_text(f.read(), colour, background)
 
-    def point_collision(self, point_pos: Position) -> bool:
-        if (
-            self.position[0] <= point_pos[0]
-            and self.position[1] <= point_pos[1]
-            and self.position[0] + self.dimensions[0] >= point_pos[0]
-            and self.position[1] + self.dimensions[1] >= point_pos[1]
-        ):
-            return True
-        return False
-
-    def other_collision(self, other: "TextObject") -> bool:
-        if (
-            self.position[0] <= other.position[0] + other.dimensions[0]
-            and self.position[0] + self.dimensions[0] >= other.position[0]
-            and self.position[1] <= other.position[1] + other.dimensions[1]
-            and self.position[1] + self.dimensions[1] >= other.position[1]
-        ):
-            print("Collide!")
-            return True
-        return False
+    def add_component(self, component):
+        component.root = self
+        self.components.append(component)
+        self.__dict__[type(component).__name__.lower()] = component

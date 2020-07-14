@@ -1,7 +1,7 @@
 import pygame
 from sys import exit
 from typing import Tuple, NoReturn
-from .textobject import TextObject
+from textobject import TextObject
 
 
 Size = Tuple[int, int]
@@ -38,6 +38,8 @@ class TextOnlyWindow:
         self.background_colour = (0, 0, 0)
         self.text_objects = []
 
+        self.WIDTH, self.HEIGHT = self.surface.get_size()
+
     def update(self) -> NoReturn:
         """Update window and handle any events. Also push events to TextObjects."""
         self.dt = self.clock.tick(self.target_FPS)
@@ -51,6 +53,7 @@ class TextOnlyWindow:
         for text_object in self.text_objects:
             text_object.update(self.dt)
             text_object.handle_events(events)
+            text_object.handle_components(self.dt)
 
     def render(self) -> NoReturn:
         """Clear surface, Render TextObjects, Update window"""
