@@ -1,19 +1,19 @@
 """Pong example using TOW.PY"""
 
 from textobject import TextObject
-from component import ColliderComponent, MovementComponent
+from component import ColliderComponent, MovementComponent, ControlComponent
 from tow import TextOnlyWindow
 import pygame
 
 
 class Ball(TextObject):
 
-    SPRITE = ["  "]
+    SPRITE = ["@@", "@@"]
 
     def __init__(self, start_pos):
-        TextObject.__init__(self, Ball.SPRITE, start_pos, background=(255, 255, 255))
+        TextObject.__init__(self, Ball.SPRITE, start_pos)
         self.start_pos = start_pos
-        self.position_gridded = False
+        self.position_gridded = True
 
     def reverse_ball(self, paddle=None):
         self.movementcomponent.reverse_x()
@@ -29,67 +29,92 @@ class Ball(TextObject):
         self.movementcomponent.reverse_y()
 
     def reset_ball(self, void=None):
-        self.position = self.start_pos
-
+        # Need to create a new list for position otherwise we will change startpos
+        self.position = list(self.start_pos)
         self.movementcomponent.move(-self.movementcomponent.speed_x, 0)
 
 
 class Paddle(TextObject):
 
-    SPRITE = ["  ", "  ", "  ", "  ", "  ", "  "]
+    SPRITE = ["==", "||", "||", "||", "||", "=="]
 
     def __init__(self, start_pos, player_controlled=False, ball=None):
-        TextObject.__init__(self, Paddle.SPRITE, start_pos, background=(255, 255, 255))
+        TextObject.__init__(self, Paddle.SPRITE, start_pos)
         self.start_pos = start_pos
         self.player_controlled = player_controlled
-        self.position_gridded = False
+        self.position_gridded = True
         self.speed = 0.3
         self.ball = ball
 
     def reset_paddle(self, other_object=None):
-        self.position = self.start_pos
+        self.position = list(self.start_pos)
+
+    def move_up(self):
+        self.movementcomponent.move(0, -self.speed)
+
+    def move_down(self):
+        self.movementcomponent.move(0, self.speed)
+
+    def stop(self):
+        self.movementcomponent.move(0, 0)
 
     def update(self, dt):
-        if self.player_controlled:
-            pressed = pygame.key.get_pressed()
-            if pressed[pygame.K_w]:
+        if not self.player_controlled:
+            ball_distance = (self.position[1] + (self.dimensions[1] // 2)) - (
+                self.ball.position[1] + (self.ball.dimensions[1] // 2)
+            )
+            if ball_distance > self.dimensions[1] // 4:
                 self.movementcomponent.move(0, -self.speed)
-            elif pressed[pygame.K_s]:
+            elif ball_distance < -(self.dimensions[1] // 4):
                 self.movementcomponent.move(0, self.speed)
             else:
                 self.movementcomponent.stop()
-        else:
-            self.position[1] = self.ball.position[1] - (self.dimensions[1] // 2)
 
 
 tow = TextOnlyWindow()
 
-b = Ball([tow.WIDTH // 2, tow.HEIGHT // 2])
+ball = Ball([tow.WIDTH // 2, tow.HEIGHT // 2])
 
-p1 = Paddle([20, 175], player_controlled=True)
-p1.add_component(MovementComponent())
-tow.add_object(p1)
+paddle1 = Paddle([20, 175], player_controlled=True)
+paddle1.add_component(MovementComponent())
 
-p2 = Paddle([540, 175], ball=b)
-tow.add_object(p2)
+control_component = ControlComponent()
+control_component.on_key_hold(pygame.K_w, paddle1.move_up)
+control_component.on_key_hold(pygame.K_s, paddle1.move_down)
+control_component.on_key_hold([pygame.K_w, pygame.K_s], paddle1.stop, reverse=True)
+paddle1.add_component(control_component)
+
+tow.add_object(paddle1)
+
+paddle2 = Paddle([540, 175], ball=ball, player_controlled=True)
+paddle2.add_component(MovementComponent())
+
+control_component = ControlComponent()
+control_component.on_key_hold(pygame.K_UP, paddle2.move_up)
+control_component.on_key_hold(pygame.K_DOWN, paddle2.move_down)
+control_component.on_key_hold([pygame.K_UP, pygame.K_DOWN], paddle2.stop, reverse=True)
+paddle2.add_component(control_component)
+
+tow.add_object(paddle2)
 
 ball_collider = ColliderComponent()
-ball_collider.add_collider(p1, b.reverse_ball)
-ball_collider.add_collider(p2, b.reverse_ball)
-ball_collider.add_collider((0, 0, tow.WIDTH, 1), b.bounce)
-ball_collider.add_collider((0, tow.HEIGHT - 1, tow.WIDTH, 1), b.bounce)
+ball_collider.add_collider(paddle1, ball.reverse_ball)
+ball_collider.add_collider(paddle2, ball.reverse_ball)
+ball_collider.add_collider((0, 0, tow.WIDTH, 1), ball.bounce)
+ball_collider.add_collider((0, tow.HEIGHT - 1, tow.WIDTH, 1), ball.bounce)
 ball_collider.add_collider(
-    (0, 0, 1, tow.HEIGHT), [b.reset_ball, p1.reset_paddle, p2.reset_paddle]
+    (0, 0, 1, tow.HEIGHT), [ball.reset_ball, paddle1.reset_paddle, paddle2.reset_paddle]
 )
 ball_collider.add_collider(
-    (tow.WIDTH - 1, 0, 1, tow.HEIGHT), [b.reset_ball, p1.reset_paddle, p2.reset_paddle],
+    (tow.WIDTH - 1, 0, 1, tow.HEIGHT),
+    [ball.reset_ball, paddle1.reset_paddle, paddle2.reset_paddle],
 )
-b.add_component(ball_collider)
+ball.add_component(ball_collider)
 
 movement_component = MovementComponent()
-b.add_component(movement_component)
-movement_component.speed_x = 0.2
+ball.add_component(movement_component)
+movement_component.speed_x = 0.3
 
-tow.add_object(b)
+tow.add_object(ball)
 
 tow.run()

@@ -1,5 +1,6 @@
 from typing import Tuple, Callable, NoReturn, Generic
 from textobject import TextObject
+import pygame
 
 Position = Tuple[int, int]
 
@@ -127,3 +128,32 @@ class ColliderComponent(Component):
         ):
             return True
         return False
+
+
+class ControlComponent(Component):
+    def __init__(self):
+        Component.__init__(self)
+        self.controls = []
+
+    def update(self, dt):
+        for under_func, key, call, reverse in self.controls:
+            if under_func(key, reverse):
+                call()
+
+    def is_key_down(self, key):
+        pass
+
+    def is_key_hold(self, key, reverse=False):
+        if type(key) is list:
+            for k in key:
+                if pygame.key.get_pressed()[k] and reverse:
+                    return False
+            return True
+        elif type(key) is int:
+            return pygame.key.get_pressed()[key] and not reverse
+
+    def on_key_down(self, key, call, reverse=False):
+        self.controls.append((self.is_key_down, key, call, reverse))
+
+    def on_key_hold(self, key, call, reverse=False):
+        self.controls.append((self.is_key_hold, key, call, reverse))
