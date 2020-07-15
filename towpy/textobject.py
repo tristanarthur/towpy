@@ -18,7 +18,7 @@ class TextObject:
         background: Colour = None,
     ):
         self.position = list(pos)
-        self.default_text = self.__load_text(text, colour, background)
+        self.set_sprite(text, colour, background)
         self.hidden = False
         self.position_gridded = True
         self.components = []
@@ -35,6 +35,10 @@ class TextObject:
     def handle_components(self, dt):
         for component in self.components:
             component.update(dt)
+
+    @final
+    def set_sprite(self, text, colour=(255, 255, 255), background=None):
+        self.default_text = self.__load_text(text, colour, background)
 
     @final
     def __load_text(

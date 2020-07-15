@@ -55,12 +55,27 @@ class Paddle(TextObject):
             self.movementcomponent.follow(self.ball, 15)
 
 
+class Score(TextObject):
+    SPRITE = ["0"]
+
+    def __init__(self, start_pos):
+        TextObject.__init__(self, Score.SPRITE, start_pos)
+        self.score = 0
+
+    def add_score(self):
+        self.score += 1
+        self.set_sprite([str(self.score)], (255, 255, 255), None)
+        print(self.default_text)
+
+
 tow = TextOnlyWindow(size=(80, 32))
 
 divider = TextObject(["|"] * 80, [0, 0])
 ball = Ball([0, 0])
 paddle1 = Paddle([0, 0], player_controlled=True)
 paddle2 = Paddle([0, 0], ball=ball, player_controlled=True)
+score1 = Score([tow.WIDTH // 4, 0])
+score2 = Score([tow.WIDTH - (tow.WIDTH // 4), 0])
 
 divider.position = [(tow.WIDTH // 2) - (divider.size[0] // 2), 0]
 ball.set_position(
@@ -100,11 +115,12 @@ ball_collider.add_collider(
     (0, tow.HEIGHT - 1, tow.WIDTH, 1), ball.movementcomponent.reverse_y
 )
 ball_collider.add_collider(
-    (0, 0, 1, tow.HEIGHT), [ball.reset_ball, paddle1.reset_paddle, paddle2.reset_paddle]
+    (0, 0, 1, tow.HEIGHT),
+    [ball.reset_ball, paddle1.reset_paddle, paddle2.reset_paddle, score2.add_score],
 )
 ball_collider.add_collider(
     (tow.WIDTH - 1, 0, 1, tow.HEIGHT),
-    [ball.reset_ball, paddle1.reset_paddle, paddle2.reset_paddle],
+    [ball.reset_ball, paddle1.reset_paddle, paddle2.reset_paddle, score1.add_score],
 )
 ball.add_component(ball_collider)
 
@@ -112,5 +128,7 @@ tow.add_object(divider)
 tow.add_object(ball)
 tow.add_object(paddle1)
 tow.add_object(paddle2)
+tow.add_object(score1)
+tow.add_object(score2)
 
 tow.run()
