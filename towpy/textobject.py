@@ -1,8 +1,10 @@
 from typing import Tuple, Generic, List, NoReturn, final
+import config
 from pygame import *
 
 
 Position = Tuple[int, int]
+Size = Tuple[int, int]
 Colour = Tuple[int, int, int]
 RichText = List[Tuple[Position, Colour, Colour]]
 
@@ -19,23 +21,14 @@ class TextObject:
         self.default_text = self.__load_text(text, colour, background)
         self.hidden = False
         self.position_gridded = True
-        self.dimensions = [0, 0]
         self.components = []
+        self.size = self.get_size()
 
     def update(self, dt: int) -> NoReturn:
         """Update TextObject. This method is expected to be overrided.
 
         Arguments:
         dt -- Difference in ms between current and last frame.
-        """
-        pass
-
-    def handle_events(self, events: "pygame.event.EventList") -> NoReturn:
-        """Handle incoming pygame events. This method is expected to
-        be overrided.
-
-        Arguments:
-        events -- A PyGame EventList with all events from queue of this frame.
         """
         pass
 
@@ -74,7 +67,7 @@ class TextObject:
         return rich_text
 
     @final
-    def render(self, surface: "pygame.Surface", font: "pygame.font.Font",) -> NoReturn:
+    def render(self, surface: "pygame.Surface") -> NoReturn:
         """Render TextObject onto a pygame Surface. Due to the enforced
         limitations of this library every object uses the same font and font
         size. However, choice of colour is allowed. This is why a decision
@@ -93,25 +86,35 @@ class TextObject:
 
         # Snap to grid
         if self.position_gridded:
-            x = x - (x % font.size(" ")[0])
-            y = y - (y % font.size(" ")[1])
+            x = x - (x % config.font.size(" ")[0])
+            y = y - (y % config.font.size(" ")[1])
 
         # Must be stored for line restore point
         initial_x = x
 
-        max_width = 0
         for line in self.default_text:
             for char, colour, background in line:
-                max_width = max(max_width, len(line))
                 if char is not None:
-                    surface.blit(font.render(char, False, colour, background), (x, y))
-                x += font.size(" ")[0]
+                    surface.blit(
+                        config.font.render(char, False, colour, background), (x, y)
+                    )
+                x += config.font.size(" ")[0]
             # Reset x to start of object and move
             # y to next line
             x = initial_x
-            y += font.size(" ")[1]
-        self.dimensions[0] = max_width * font.size("_")[0]
-        self.dimensions[1] = len(self.default_text) * font.size(" ")[1]
+            y += config.font.size(" ")[1]
+
+    @final
+    def get_size(self) -> Size:
+        """Function is not intended to be used outside of class. If you want
+        to get dimensions use the class var. This funtion is used to recalculate
+        size of object when sprite is changed only.
+        """
+        width = 0
+        height = len(self.default_text) * config.font.size(" ")[1]
+        for line in self.default_text:
+            width = max(width, len(line))
+        return (width * config.font.size(" ")[0], height)
 
     @final
     def set_colour(self, colour: Colour) -> NoReturn:

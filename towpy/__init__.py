@@ -1,3 +1,4 @@
-from .tow import TextOnlyWindow
-from .textobject import TextObject
-from .component import *
+from towpy.tow import TextOnlyWindow
+from towpy.textobject import TextObject
+from towpy.component import *
+from towpy.config import *

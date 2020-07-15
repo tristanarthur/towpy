@@ -2,6 +2,7 @@ import pygame
 from sys import exit
 from typing import Tuple, NoReturn
 from textobject import TextObject
+from config import font
 
 
 Size = Tuple[int, int]
@@ -10,22 +11,15 @@ Colour = Tuple[int, int, int]
 
 class TextOnlyWindow:
     def __init__(
-        self,
-        size: Size = (64, 32),
-        caption: str = "TOW.PY",
-        size_is_cells: bool = True,
-        font_size: int = 15,
+        self, size: Size = (64, 32), caption: str = "TOW.PY", size_is_cells: bool = True
     ):
         if not pygame.get_init():
             pygame.init()
-        if not pygame.font.get_init():
-            pygame.font.init()
+
         self.running = True
 
-        self.font = pygame.font.SysFont("monospace", font_size)
-
         if size_is_cells:
-            size = (size[0] * self.font.size(" ")[0], size[1] * self.font.size(" ")[1])
+            size = (size[0] * font.size(" ")[0], size[1] * font.size(" ")[1])
 
         self.surface = pygame.display.set_mode(size)
         pygame.display.set_caption(caption)
@@ -52,7 +46,6 @@ class TextOnlyWindow:
 
         for text_object in self.text_objects:
             text_object.update(self.dt)
-            text_object.handle_events(events)
             text_object.handle_components(self.dt)
 
     def render(self) -> NoReturn:
@@ -61,7 +54,7 @@ class TextOnlyWindow:
 
         for text_object in self.text_objects:
             if not text_object.hidden:
-                text_object.render(self.surface, self.font)
+                text_object.render(self.surface)
 
         pygame.display.update()
 
@@ -95,25 +88,3 @@ class TextOnlyWindow:
             self.background_colour = colour
         else:
             raise TypeError("Incorrect background colour format!")
-
-
-if __name__ == "__main__":
-    tow = TextOnlyWindow()
-    tow.set_background_colour((100, 100, 100))
-
-    a = TextObject([" __ ", "|__|"], (50, 50))
-    tow.add_object(a)
-
-    b = TextObject("Hello\nMy\nName\nTree", (200, 200))
-    tow.add_object(b)
-
-    c = TextObject(
-        [[" ", None, " "], [" ", " ", " "]],
-        (100, 100),
-        colour=(255, 120, 120),
-        background=(0, 0, 0),
-    )
-    c.set_background_at((1, 1), (120, 255, 120))
-    tow.add_object(c)
-
-    tow.run()
