@@ -1,5 +1,5 @@
 from typing import Tuple, Callable, NoReturn, Generic
-from textobject import TextObject
+from towpy.textobject import TextObject
 import pygame
 
 Position = Tuple[int, int]

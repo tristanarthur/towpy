@@ -1,8 +1,8 @@
 """Pong example using TOW.PY"""
 
-from textobject import TextObject
-from component import ColliderComponent, MovementComponent, ControlComponent
-from tow import TextOnlyWindow
+from towpy import TextObject
+from towpy.component import ColliderComponent, MovementComponent, ControlComponent
+from towpy import TextOnlyWindow
 import pygame
 
 
@@ -64,8 +64,7 @@ class Score(TextObject):
 
     def add_score(self):
         self.score += 1
-        self.set_sprite([str(self.score)], (255, 255, 255), None)
-        print(self.default_text)
+        self.set_sprite(str(self.score))
 
 
 tow = TextOnlyWindow(size=(80, 32))

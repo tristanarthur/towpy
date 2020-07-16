@@ -1,6 +1,5 @@
 from typing import Tuple, Generic, List, NoReturn, final
-import config
-from pygame import *
+from towpy.config import font
 
 
 Position = Tuple[int, int]
@@ -90,8 +89,8 @@ class TextObject:
 
         # Snap to grid
         if self.position_gridded:
-            x = x - (x % config.font.size(" ")[0])
-            y = y - (y % config.font.size(" ")[1])
+            x = x - (x % font.size(" ")[0])
+            y = y - (y % font.size(" ")[1])
 
         # Must be stored for line restore point
         initial_x = x
@@ -99,14 +98,12 @@ class TextObject:
         for line in self.default_text:
             for char, colour, background in line:
                 if char is not None:
-                    surface.blit(
-                        config.font.render(char, False, colour, background), (x, y)
-                    )
-                x += config.font.size(" ")[0]
+                    surface.blit(font.render(char, False, colour, background), (x, y))
+                x += font.size(" ")[0]
             # Reset x to start of object and move
             # y to next line
             x = initial_x
-            y += config.font.size(" ")[1]
+            y += font.size(" ")[1]
 
     @final
     def get_size(self) -> Size:
@@ -115,10 +112,10 @@ class TextObject:
         size of object when sprite is changed only.
         """
         width = 0
-        height = len(self.default_text) * config.font.size(" ")[1]
+        height = len(self.default_text) * font.size(" ")[1]
         for line in self.default_text:
             width = max(width, len(line))
-        return (width * config.font.size(" ")[0], height)
+        return (width * font.size(" ")[0], height)
 
     @final
     def set_colour(self, colour: Colour) -> NoReturn:

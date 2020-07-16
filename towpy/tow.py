@@ -1,8 +1,8 @@
 import pygame
 from sys import exit
 from typing import Tuple, NoReturn
-from textobject import TextObject
-from config import font
+from towpy.textobject import TextObject
+from towpy.config import font
 
 
 Size = Tuple[int, int]
